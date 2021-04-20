@@ -25,3 +25,10 @@ CREATE TABLE employees(
   manager_id INTEGER(11) NULL,
   PRIMARY KEY (id)
 );
+
+-- To view departments, roles, employees:
+
+USE org_chart;
+SELECT * FROM departments;
+SELECT * FROM roles;
+SELECT * FROM employees;
