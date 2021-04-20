@@ -1,6 +1,6 @@
 const mysql = require('mysql');
-const inquirer = require('inquirer');
-const table = require('console.table');
+// const inquirer = require('inquirer');
+// const table = require('console.table');
 
 // create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -18,6 +18,13 @@ const connection = mysql.createConnection({
 });
 
 
+const start = () => {
+  connection.query('SELECT * FROM roles', (err, res) => {
+    if (err) throw err;
+    console.log(res);
+    connection.end();
+  });
+};
 
 // connect to the mysql server and sql database
 connection.connect((err) => {
