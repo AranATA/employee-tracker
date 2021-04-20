@@ -3,11 +3,6 @@
   "version": "1.0.0",
   "description": "<br>",
   "main": "tracker.js",
-  "dependencies": {
-    "console.table": "^0.10.0",
-    "mysql": "^2.18.1"
-  },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,11 +10,16 @@
     "type": "git",
     "url": "git+https://github.com/AranATA/employee-tracker.git"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/AranATA/employee-tracker/issues"
   },
   "homepage": "https://github.com/AranATA/employee-tracker#readme",
-  "keywords": []
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.0.0",
+    "mysql": "^2.18.1"
+  }
 }
