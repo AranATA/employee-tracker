@@ -92,15 +92,13 @@ These notes and links are listing some valuable references among others that I u
 
 [https://nodejs.dev/](https://nodejs.dev/)
 
-[http://expressjs.com/](http://expressjs.com/)
+[https://dev.mysql.com/](https://dev.mysql.com/)
 
-[https://expressjs.com/en/starter/static-files.html](https://expressjs.com/en/starter/static-files.html)
+[https://sqlbolt.com/](https://sqlbolt.com/)
 
-[https://www.heroku.com/about](https://www.heroku.com/about)
+[https://www.sqlteaching.com/](https://www.sqlteaching.com/)
 
-[https://medium.com/@osiolabs/read-write-json-files-with-node-js-92d03cc82824](https://medium.com/@osiolabs/read-write-json-files-with-node-js-92d03cc82824)
-
-[https://insomnia.rest/](https://insomnia.rest/)
+[https://www.npmjs.com/package/console.table](https://www.npmjs.com/package/console.table)
 
 [https://shields.io/category/dependencies/](https://shields.io/category/dependencies/)
 
