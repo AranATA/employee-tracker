@@ -102,7 +102,6 @@ const viewAllEmployeeByDepartment = () => {
 
 const viewAllEmployeeByManager = () => {
   console.log('Viewing all employees by manager...\n');
-  
   connection.query('SELECT first_name, last_name, manager_id,CASE manager_id WHEN 1 THEN (SELECT last_name FROM employees WHERE id=1) WHEN 5 THEN (SELECT last_name FROM employees WHERE id=5) WHEN 9 THEN (SELECT last_name FROM employees WHERE id=9) WHEN 13 THEN (SELECT last_name FROM employees WHERE id=13) ELSE "M" END as manager_name FROM employees ORDER BY manager_id', (err, res) => {
     if (err) throw err;
     // Table all results of the SELECT statement
@@ -112,11 +111,62 @@ const viewAllEmployeeByManager = () => {
 }
 
 const addNewEmployee = () => {
+  console.log('Adding a new employee...\n');
+  inquirer
+  .prompt([
+    {
+      name: 'first_name',
+      type: 'input',
+      message: 'First name of the new employee?',
+    },
+    {
+      name: 'last_name',
+      type: 'input',
+      message: 'Last name of the new employee?',
+    },
+    {
+      name: 'role_id',
+      type: 'list',
+      message: 'What is the role of the new employee?',
+      choices: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', new inquirer.Separator()],
+      suffix: ' 1 - backend_lead, 2 - developer, 3 - engineer, 4 - cloud-man, 5 - architect, 6 - admin, 7 - qa_lead, 8 - qa_analyst, 9 - tester, 10 - ux_lead, 11 - ux_designer, 12 - researcher' 
+    },
+    {
+      name: 'manager_id',
+      type: 'list',
+      message: 'What is the id of the new employee manager?',
+      choices: ['1', '2', '3', '4'],
+      suffix: ' 1 - back_end, 2 - dex_ops, 3 - qa, 4 - ux',
+    },
+  ])
+  .then((answer) => {
+    // when finished prompting, insert a new item into the db with that info
+    // INSERT INTO someTable VALUES ...
+    // const {first_name, last_name, role_id, manager_id} = answer
 
-}
+    connection.query('INSERT INTO employees SET ?', 
+      {
+        first_name: answer.first_name,
+        last_name: answer.last_name,
+        role_id: answer.role_id,
+        manager_id: answer.manager_id,
+      },
+      (err) => {
+        if (err) throw err;
+        console.log('New employee was added successfully!');
+        trackerMenu();
+      }
+    )
+  });
+};
 
 
-
+// validate(value) {
+//   if (isNaN(value) === false) {
+//     return true;
+//   }
+//   return false;
+// },
 // const start = () => {
 //   connection.query('SELECT * FROM roles', (err, res) => {
 //     if (err) throw err;

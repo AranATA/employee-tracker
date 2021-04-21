@@ -29,6 +29,7 @@ CREATE TABLE employees(
 -- To view departments, roles, employees:
 
 USE org_chart;
+
 SELECT * FROM departments;
 SELECT * FROM roles;
 SELECT * FROM employees;
@@ -53,7 +54,7 @@ SELECT first_name, last_name, manager_id,
     WHEN 5 THEN (SELECT last_name FROM employees WHERE id=5)
     WHEN 9 THEN (SELECT last_name FROM employees WHERE id=9)
     WHEN 13 THEN (SELECT last_name FROM employees WHERE id=13)
-		ELSE null
+		ELSE "M"
 	END
 	as manager_name
 FROM employees;
