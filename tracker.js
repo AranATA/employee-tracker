@@ -69,6 +69,7 @@ function trackerMenu() {
           viewBudgetDepartment();
           break;
         case 'EXIT APP':
+          console.log('Exiting the app...\n');
           connection.end();
           break;
         default:
@@ -80,34 +81,39 @@ function trackerMenu() {
 
 const viewAllEmployee = () => {
   console.log('Viewing all employees...\n');
-  connection.query('SELECT * FROM employees', (err, res) => {
+  connection.query('SELECT * FROM employees ORDER BY first_name', (err, res) => {
     if (err) throw err;
     // Table all results of the SELECT statement
     console.table(res);
-    connection.end();
+    trackerMenu();
   });
 };
-
 
 const viewAllEmployeeByDepartment = () => {
-  
   console.log('Viewing all employees by department...\n');
-  connection.query('SELECT first_name, last_name, dept_name FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON departments.id =roles.dept_id', (err, res) => {
+  connection.query('SELECT first_name, last_name, dept_name FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON departments.id =roles.dept_id ORDER BY dept_name', (err, res) => {
     if (err) throw err;
     // Table all results of the SELECT statement
     console.table(res);
-    connection.end();
+    trackerMenu();
+    // connection.end();
   });
 };
 
+const viewAllEmployeeByManager = () => {
+  console.log('Viewing all employees by manager...\n');
+  
+  connection.query('SELECT first_name, last_name, manager_id,CASE manager_id WHEN 1 THEN (SELECT last_name FROM employees WHERE id=1) WHEN 5 THEN (SELECT last_name FROM employees WHERE id=5) WHEN 9 THEN (SELECT last_name FROM employees WHERE id=9) WHEN 13 THEN (SELECT last_name FROM employees WHERE id=13) ELSE "M" END as manager_name FROM employees ORDER BY manager_id', (err, res) => {
+    if (err) throw err;
+    // Table all results of the SELECT statement
+    console.table(res);
+    trackerMenu();
+  });
+}
 
+const addNewEmployee = () => {
 
-
-
-
-
-
-
+}
 
 
 

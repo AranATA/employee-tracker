@@ -11,11 +11,11 @@ VALUES ("backend_lead", 100, 1), ("developer", 85, 1), ("engineer", 80, 1), ("cl
 USE org_chart;
 
 INSERT INTO employees (first_name, last_name, role_id, manager_id)
-VALUES ("Diana", "Peck", 1), ("Tomasa", "Lucas", 2, 1), ("Candida", "Dolan", 3, 1), ("Keitha", "Keyes", 3, 1), 
+VALUES ("Diana", "Peck", 1, null), ("Tomasa", "Lucas", 2, 1), ("Candida", "Dolan", 3, 1), ("Keitha", "Keyes", 3, 1), 
 
-("Pratap", "Cardozo", 4), ("Shaw", "Fairbairn", 5, 2), ("Vikram", "Arreola", 6, 2), ("Ileana", "Blake", 6, 2), 
+("Pratap", "Cardozo", 4, null), ("Shaw", "Fairbairn", 5, 5), ("Vikram", "Arreola", 6, 5), ("Ileana", "Blake", 6, 5), 
 
-("Noemi", "Gallego", 7), ("Wiley", "Michelakis", 8, 3), ("Murdoch", "Ramsey", 9, 3), ("Mayur", "Basurto", 9, 3), 
+("Noemi", "Gallego", 7, null), ("Wiley", "Michelakis", 8, 9), ("Murdoch", "Ramsey", 9, 9), ("Mayur", "Basurto", 9, 9), 
 
-("Patricia", "Parish", 10), ("Cano", "Rustici", 11, 4), ("Hakan", "Sayak", 12, 4), ("Leandra", "Shirazi", 12, 4);
+("Patricia", "Parish", 10, null), ("Cano", "Rustici", 11, 13), ("Hakan", "Sayak", 12, 13), ("Leandra", "Shirazi", 12, 13);
 

@@ -33,4 +33,31 @@ SELECT * FROM departments;
 SELECT * FROM roles;
 SELECT * FROM employees;
 
-SELECT first_name, last_name, dept_name FROM employees JOIN roles ON employees.role_id = roles.id;
+-- To view employees by departments:
+
+SELECT
+	first_name,
+    last_name,
+    dept_name
+FROM employees
+JOIN roles
+	ON employees.role_id = roles.id
+JOIN departments
+	ON departments.id = roles.dept_id;
+
+-- To view employees by managers:
+
+SELECT first_name, last_name, manager_id,
+	CASE manager_id
+		WHEN 1 THEN (SELECT last_name FROM employees WHERE id=1)
+    WHEN 5 THEN (SELECT last_name FROM employees WHERE id=5)
+    WHEN 9 THEN (SELECT last_name FROM employees WHERE id=9)
+    WHEN 13 THEN (SELECT last_name FROM employees WHERE id=13)
+		ELSE null
+	END
+	as manager_name
+FROM employees;
+
+-- To add new employees:
+
+
