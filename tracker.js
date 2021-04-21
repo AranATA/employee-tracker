@@ -22,8 +22,8 @@ const connection = mysql.createConnection({
 function trackerMenu() {
   inquirer
     .prompt({
-      type: 'list',
       name: 'menu',
+      type: 'list',
       message: 'What would you like to do with app tracker?',
       choices: ['1. VIEW all employees', '2. VIEW all employees by department', '3. VIEW all employees by manager', '4. ADD new employee', '5. ADD new role', '6. ADD new department', '7. UPDATE employee role', '8. UPDATE employee manager', '9. DELETE employee record', '10. DELETE role', '11. DELETE department', '12. VIEW the budget of a department', 'EXIT APP', new inquirer.Separator()],
       prefix: '-',
@@ -87,6 +87,28 @@ const viewAllEmployee = () => {
     connection.end();
   });
 };
+
+
+const viewAllEmployeeByDepartment = () => {
+  
+  console.log('Viewing all employees by department...\n');
+  connection.query('SELECT first_name, last_name, dept_name FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON departments.id =roles.dept_id', (err, res) => {
+    if (err) throw err;
+    // Table all results of the SELECT statement
+    console.table(res);
+    connection.end();
+  });
+};
+
+
+
+
+
+
+
+
+
+
 
 
 // const start = () => {

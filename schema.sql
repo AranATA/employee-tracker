@@ -32,3 +32,5 @@ USE org_chart;
 SELECT * FROM departments;
 SELECT * FROM roles;
 SELECT * FROM employees;
+
+SELECT first_name, last_name, dept_name FROM employees JOIN roles ON employees.role_id = roles.id;
