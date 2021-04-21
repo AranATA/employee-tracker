@@ -1,35 +1,73 @@
 const inquirer = require('inquirer');
+
 // MAIN MENU What would you like to do?
 
-function trackerStatus() {
+function trackerMenu() {
   inquirer
-    .prompt([
-      {
-        type: "list",
-        name: "menu",
-        message: "What would you like to do with app tracker?",
-        choices: ["1. View all employees", "2. View all employees by department", "3. View all employees by manager", "4. Add new employee", "5. Add new role", "6. Add new department", "7. Update employee role", "8. Update employee manager", "9. Delete employee record", "10. Delete role", "11. Delete department", "12. View a department's budget", new inquirer.Separator()],
-        prefix: "-",
+    .prompt({
+      type: 'list',
+      name: 'menu',
+      message: 'What would you like to do with app tracker?',
+      choices: ['1. VIEW all employees', '2. VIEW all employees by department', '3. VIEW all employees by manager', '4. ADD new employee', '5. ADD new role', '6. ADD new department', '7. UPDATE employee role', '8. UPDATE employee manager', '9. DELETE employee record', '10. DELETE role', '11. DELETE department', '12. VIEW the budget of a department', 'EXIT APP', new inquirer.Separator()],
+      prefix: '-',
 
+    })
+
+    .then((answer) => {
+      switch (answer.menu) {
+        case '1. VIEW all employees':
+          viewAllEmployee();
+          break;
+        case '2. VIEW all employees by department':
+          viewAllEmployeeByDepartment();
+          break;
+        case '3. VIEW all employees by manager':
+          viewAllEmployeeByManager();
+          break;
+        case '4. ADD new employee':
+          addNewEmployee();
+          break;
+        case '5. ADD new role':
+          addNewRole();
+          break;
+        case '6. ADD new department':
+          addNewDepartment();
+          break;
+        case '7. UPDATE employee role':
+          updateEmployeeRole();
+          break;
+        case '8. UPDATE employee manager':
+          updateEmployeeManager();
+          break;
+        case '9. DELETE employee record':
+          deleteEmployeeRecord();
+          break;
+        case '10. DELETE role':
+          deleteRole();
+          break;
+        case '11. DELETE department':
+          deleteDepartment();
+          break;
+        case '12. VIEW the budget of a department':
+          viewBudgetDepartment();
+          break;
+        case 'EXIT APP':
+          connection.end();
+          break;
+        default:
+          console.log(`Invalid action: ${answer.menu}`);
+          break;             
       }
-    ])
+    });
+};  
+trackerMenu();
 
-//     .then(function (data) {
-//       switch (data.empRole) {
-
-//         case "Engineer":
-//           addEngineer();
-//           break;
-
-//         case "Intern":
-//           addIntern();
-//           break;
-
-//         case "No, team has been built":
-//           callTeam();
-//           break;
-//       }
-//     });
-// }
-}
-trackerStatus();
+const viewAllEmployee = () => {
+  console.log('Viewing all employees...\n');
+  connection.query('SELECT * FROM employees', (err, res) => {
+    if (err) throw err;
+    // Table all results of the SELECT statement
+    console.table(res);
+    connection.end();
+  });
+};  
