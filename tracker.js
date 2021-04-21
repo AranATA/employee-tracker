@@ -141,8 +141,8 @@ const addNewEmployee = () => {
   ])
   .then((answer) => {
     // when finished prompting, insert a new item into the db with that info
-    // INSERT INTO someTable VALUES ...
-    // const {first_name, last_name, role_id, manager_id} = answer
+    
+    // TRY!****const {first_name, last_name, role_id, manager_id} = answer
 
     connection.query('INSERT INTO employees SET ?', 
       {
@@ -159,6 +159,70 @@ const addNewEmployee = () => {
     )
   });
 };
+
+const addNewRole = () => {
+  console.log('Adding a new role...\n');
+  inquirer
+  .prompt([
+    {
+      name: 'title',
+      type: 'input',
+      message: 'What is the new role title?',
+    },
+    {
+      name: 'salary',
+      type: 'input',
+      message: 'What is the new role salary?',
+    },
+    {
+      name: 'dept_id',
+      type: 'input',
+      message: 'What is the new role deptartment id?',
+    },
+  ])
+  .then((answer) => {
+    connection.query('INSERT INTO roles SET ?', 
+      {
+        title: answer.title,
+        salary: answer.salary,
+        dept_id: answer.dept_id,
+      },
+      (err) => {
+        if (err) throw err;
+        console.log('New role was added successfully!');
+        trackerMenu();
+      }
+    )
+  });
+};
+
+const addNewDepartment = () => {
+  console.log('Adding a new department...\n');
+  inquirer
+  .prompt([
+    {
+      name: 'dept_name',
+      type: 'input',
+      message: 'What is the new department name?',
+    }
+  ])
+  .then((answer) => {
+    connection.query('INSERT INTO departments SET ?', 
+      {
+        dept_name: answer.dept_name
+      },
+      (err) => {
+        if (err) throw err;
+        console.log('New department was added successfully!');
+        trackerMenu();
+      }
+    )
+  });
+};
+
+const updateEmployeeRole = () => {
+
+
 
 
 // validate(value) {
