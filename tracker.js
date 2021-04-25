@@ -113,7 +113,6 @@ const viewAllEmployeeByManager = () => {
 const addNewEmployee = () => {
   console.log('Adding a new employee...\n');
 
-
   const dynamicDepartments = () => {
 
     // 1. query the database for all departments, get the latest set and form an array with department names.
@@ -138,7 +137,7 @@ const addNewEmployee = () => {
           let chosenDepartment;
           let chosenDepartmentId;
           results.forEach((department) => {
-            if (department.dept_name === answer.choice) {
+            if (department.dept_name === answer.dept_name) {
               chosenDepartment = department;
             }
             chosenDepartmentId = chosenDepartment.id;
@@ -208,8 +207,7 @@ const addNewEmployee = () => {
   // };
   // setTimeout(delay, 250);
 };
-
-
+// ADD NEW ROLE
 const addNewRole = () => {
   console.log('Adding a new role...\n');
   connection.query('SELECT * FROM departments ORDER BY departments.id', (err, res) => {
@@ -253,7 +251,7 @@ const addNewRole = () => {
   };
   setTimeout(delayedPrompt, 250);
 };
-
+// ADD NEW DEPARTMENT
 const addNewDepartment = () => {
   console.log('Adding a new department...\n');
   inquirer
@@ -271,16 +269,19 @@ const addNewDepartment = () => {
         },
         (err) => {
           if (err) throw err;
-          console.log('New department was added successfully!');
+          console.log('New department was added successfully!\n');
           trackerMenu();
         }
       )
     });
 };
 
-const viewAllEmployeeRef = () => {
 
-  connection.query('SELECT employees.id, roles.id, first_name, last_name, dept_name, title, role_id FROM employees RIGHT JOIN roles ON employees.role_id = roles.id RIGHT JOIN departments ON departments.id =roles.dept_id ORDER BY dept_name', (err, res) => {
+
+
+
+const viewToUpdateRef = () => {
+  connection.query('SELECT employees.id, CONCAT(employees.first_name, " ", employees.last_name) AS employee_name, CONCAT(roles.title, ", id:", roles.id) AS title_and_role_id, dept_name, CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees LEFT JOIN employees manager_name ON manager_name.id = employees.manager_id RIGHT JOIN roles ON employees.role_id = roles.id RIGHT JOIN departments ON departments.id = roles.dept_id ORDER BY employees.id', (err, res) => {
     if (err) throw err;
     console.table(res);
   });
@@ -289,7 +290,7 @@ const viewAllEmployeeRef = () => {
 const updateEmployeeRole = () => {
   console.log('Updating employee role...\n');
   console.log('Use this table to answer the questions:\n');
-  viewAllEmployeeRef();
+  viewToUpdateRef();
 
   const delay = () => {
     inquirer
@@ -326,25 +327,7 @@ const updateEmployeeRole = () => {
   setTimeout(delay, 250);
 };
 
-// const updateEmployeeManager = () => {
-//   console.log('Updating employee manager...\n');
-//   console.log('Use this table to answer the questions:\n');
-
-//   viewAllEmployeeByManager ()
-
-//   const delay = () => {
-
-
-
-
-
-
-
-
-
-
-//   setTimeout(delay, 250); 
-// };
+updateEmployeeManager();
 
 // validate(value) {
 //   if (isNaN(value) === false) {

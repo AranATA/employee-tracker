@@ -151,3 +151,129 @@ const addNewRole = () => {
   };
   setTimeout(delayedPrompt, 250);
 };
+// ADD NEW DEPARTMENT
+const addNewDepartment = () => {
+  console.log('Adding a new department...\n');
+  inquirer
+    .prompt([
+      {
+        name: 'dept_name',
+        type: 'input',
+        message: 'What is the new department name?',
+      }
+    ])
+    .then((answer) => {
+      connection.query('INSERT INTO departments SET ?',
+        {
+          dept_name: answer.dept_name
+        },
+        (err) => {
+          if (err) throw err;
+          console.log('New department was added successfully!\n');
+          trackerMenu();
+        }
+      )
+    });
+};
+// reference table function for UPDATE
+const viewToUpdateRef = () => {
+  connection.query('SELECT employees.id, CONCAT(employees.first_name, " ", employees.last_name) AS employee_name, CONCAT(roles.title, ", id:", roles.id) AS title_and_role_id, dept_name, CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees LEFT JOIN employees manager_name ON manager_name.id = employees.manager_id RIGHT JOIN roles ON employees.role_id = roles.id RIGHT JOIN departments ON departments.id = roles.dept_id ORDER BY employees.id', (err, res) => {
+    if (err) throw err;
+    console.table(res);
+  });
+};
+// UPDATE EMPLOYEE ROLE
+const updateEmployeeRole = () => {
+  console.log('Updating employee role...\n');
+  console.log('Use this table to answer the questions:\n');
+  viewToUpdateRef();
+
+  const delay = () => {
+    inquirer
+      .prompt([
+        {
+          name: 'e_id',
+          type: 'input',
+          message: 'Id number of the employee whose role to be updated?',
+        },
+        {
+          name: 'role_id',
+          type: 'input',
+          message: 'Id number of the new role?',
+        },
+      ])
+      .then((answer) => {
+        connection.query('UPDATE employees SET ? WHERE ?',
+          [
+            {
+              role_id: answer.role_id,
+            },
+            {
+              id: answer.e_id,
+            },
+          ],
+          (err, res) => {
+            if (err) throw err;
+            console.log(`${res.affectedRows} employee role updated successfully!\n`);
+            trackerMenu();
+          }
+        )
+      });
+  }
+  setTimeout(delay, 250);
+};
+// UPDATE EMPLOYEE MANAGER
+
+
+
+
+
+// Extra departments search 
+const dynamicDepartments = () => {
+
+  // 1. query the database for all departments, get the latest set and form an array with department names.
+  connection.query('SELECT * FROM departments', (err, results) => {
+    const departmentsArray = [];
+    results.forEach((res) => {
+      departmentsArray.push(res.dept_name);
+    });
+    if (err) throw err;
+    // }
+    // 2. start the inquirer function, use the array of departments as choices and get an answer for the department name.
+    inquirer
+      .prompt([
+        {
+          name: 'dept_name',
+          type: 'list',
+          message: 'Department name of the new employee?',
+          choices: departmentsArray
+        },
+      ])
+      .then((answer) => {
+        let chosenDepartment;
+        let chosenDepartmentId;
+        results.forEach((department) => {
+          if (department.dept_name === answer.dept_name) {
+            chosenDepartment = department;
+          }
+          chosenDepartmentId = chosenDepartment.id;
+        });
+       
+          connection.query('SELECT roles.id, title, manager_id FROM employees RIGHT JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.dept_id = departments.id WHERE dept_id = ?',
+          chosenDepartmentId,            
+          (err, res) => {
+            if (err) throw err;
+            console.log('Department was picked successfully!');
+            console.log('Use this table to answer the questions:\n');
+            console.table(res);
+            // trackerMenu();
+          }
+          );
+        
+      });
+
+  });
+
+
+};
+
