@@ -223,8 +223,137 @@ const updateEmployeeRole = () => {
   setTimeout(delay, 250);
 };
 // UPDATE EMPLOYEE MANAGER
+const updateEmployeeManager = () => {
+  console.log('Updating employee manager...\n');
+  console.log('Use this table to answer the questions:\n');
+  viewToUpdateRef();
 
+  const delay = () => {
+    inquirer
+      .prompt([
+        {
+          name: 'e_id',
+          type: 'input',
+          message: 'Id number of the employee whose manager to be updated?',
+        },
+        {
+          name: 'manager_id',
+          type: 'input',
+          message: 'Id number of the employee who will be the new manager?',
+        },
+      ])
+      .then((answer) => {
+        connection.query('UPDATE employees SET ? WHERE ?',
+          [
+            {
+              manager_id: answer.manager_id,
+            },
+            {
+              id: answer.e_id,
+            },
+          ],
+          (err, res) => {
+            if (err) throw err;
+            console.log(`${res.affectedRows} employee role updated successfully!\n`);
+            trackerMenu();
+          }
+        )
+      });
+  }
+  setTimeout(delay, 250);  
+}
+// UPDATE EMPLOYEE MANAGER
+const updateEmployeeManager = () => {
+  console.log('Updating employee manager...\n');
+  console.log('Use this table to answer the questions:\n');
+  viewToUpdateRef();
 
+  const delay = () => {
+    inquirer
+      .prompt([
+        {
+          name: 'e_id',
+          type: 'input',
+          message: 'Id number of the employee whose manager to be updated?',
+        },
+        {
+          name: 'manager_id',
+          type: 'input',
+          message: 'Id number of the employee who will be the new manager?',
+        },
+      ])
+      .then((answer) => {
+        connection.query('UPDATE employees SET ? WHERE ?',
+          [
+            {
+              manager_id: answer.manager_id,
+            },
+            {
+              id: answer.e_id,
+            },
+          ],
+          (err, res) => {
+            if (err) throw err;
+            console.log(`${res.affectedRows} employee role updated successfully!\n`);
+            trackerMenu();
+          }
+        )
+      });
+  }
+  setTimeout(delay, 250);  
+}
+// DELETE EMPLOYEE RECORD
+const deleteEmployeeRecord = () => {
+  console.log('Deleting an employee record...\n');
+
+  // const dynamicEmployees = () => {
+
+    // 1. query the database for all employees, get the latest set and form an array with employee names.
+    connection.query('SELECT * FROM employees', (err, results) => {
+      const employeesArray = [];
+      results.forEach((res) => {
+        employeesArray.push(`${res.first_name} ${res.last_name}`);
+      });
+      if (err) throw err;
+      employeesArray.push(`${new inquirer.Separator()}`);
+
+      // 2. start the inquirer function, use the array of employees as choices and get an answer for the employee name.
+      inquirer
+        .prompt([
+          {
+            name: 'employee_name',
+            type: 'list',
+            message: 'Name of the employee whose record is to be deleted?',
+            choices() {
+              const employeesArray = [];
+              results.forEach((res) => {
+                employeesArray.push(`${res.first_name} ${res.last_name}`)
+              });
+              return employeesArray;
+            },
+          },
+        ])
+        .then((answer) => {
+          // get the information of the chosen item
+          let chosenEmployee;
+          console.log(answer.employee_name);
+          results.forEach((employee) => {
+            if ((`${employee.first_name} ${employee.last_name}`) === (answer.employee_name)) {
+              chosenEmployee = employee;
+            }
+          });
+       
+          connection.query('DELETE FROM employees WHERE employees.id = ?',
+          chosenEmployee.id,            
+          (error) => {
+            if (error) throw err;
+            console.log('Record was deleted successfully!\n');
+            trackerMenu();
+          }
+          );
+        });
+    });
+};
 
 
 

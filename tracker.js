@@ -122,7 +122,7 @@ const addNewEmployee = () => {
         departmentsArray.push(res.dept_name);
       });
       if (err) throw err;
-      // }
+      
       // 2. start the inquirer function, use the array of departments as choices and get an answer for the department name.
       inquirer
         .prompt([
@@ -130,21 +130,24 @@ const addNewEmployee = () => {
             name: 'dept_name',
             type: 'list',
             message: 'Department name of the new employee?',
-            choices: departmentsArray
+            choices: departmentsArray,
           },
         ])
         .then((answer) => {
           let chosenDepartment;
-          let chosenDepartmentId;
           results.forEach((department) => {
             if (department.dept_name === answer.dept_name) {
               chosenDepartment = department;
             }
-            chosenDepartmentId = chosenDepartment.id;
+            else {
+              console.error('No results');
+            }
+            console.log(chosenDepartment);
+            // chosenDepartmentId = chosenDepartment.id;
           });
          
             connection.query('SELECT roles.id, title, manager_id FROM employees RIGHT JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.dept_id = departments.id WHERE dept_id = ?',
-            chosenDepartmentId,            
+            chosenDepartment.id,            
             (err, res) => {
               if (err) throw err;
               console.log('Department was picked successfully!');
@@ -162,7 +165,13 @@ const addNewEmployee = () => {
   };
 
   dynamicDepartments();
- 
+  // choices() {
+  //   const departmentsArray = [];
+  //   results.forEach(({ dept_name }) => {
+  //     departmentsArray.push(dept_name);
+  //   });
+  //   return departmentsArray;
+  // },
   
   // const delay = () => {
   //   inquirer
@@ -275,18 +284,14 @@ const addNewDepartment = () => {
       )
     });
 };
-
-
-
-
-
+// reference table function for UPDATE
 const viewToUpdateRef = () => {
   connection.query('SELECT employees.id, CONCAT(employees.first_name, " ", employees.last_name) AS employee_name, CONCAT(roles.title, ", id:", roles.id) AS title_and_role_id, dept_name, CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees LEFT JOIN employees manager_name ON manager_name.id = employees.manager_id RIGHT JOIN roles ON employees.role_id = roles.id RIGHT JOIN departments ON departments.id = roles.dept_id ORDER BY employees.id', (err, res) => {
     if (err) throw err;
     console.table(res);
   });
 };
-
+// UPDATE EMPLOYEE ROLE
 const updateEmployeeRole = () => {
   console.log('Updating employee role...\n');
   console.log('Use this table to answer the questions:\n');
@@ -326,8 +331,109 @@ const updateEmployeeRole = () => {
   }
   setTimeout(delay, 250);
 };
+// UPDATE EMPLOYEE MANAGER
+const updateEmployeeManager = () => {
+  console.log('Updating employee manager...\n');
+  console.log('Use this table to answer the questions:\n');
+  viewToUpdateRef();
 
-updateEmployeeManager();
+  const delay = () => {
+    inquirer
+      .prompt([
+        {
+          name: 'e_id',
+          type: 'input',
+          message: 'Id number of the employee whose manager to be updated?',
+        },
+        {
+          name: 'manager_id',
+          type: 'input',
+          message: 'Id number of the employee who will be the new manager?',
+        },
+      ])
+      .then((answer) => {
+        connection.query('UPDATE employees SET ? WHERE ?',
+          [
+            {
+              manager_id: answer.manager_id,
+            },
+            {
+              id: answer.e_id,
+            },
+          ],
+          (err, res) => {
+            if (err) throw err;
+            console.log(`${res.affectedRows} employee role updated successfully!\n`);
+            trackerMenu();
+          }
+        )
+      });
+  }
+  setTimeout(delay, 250);  
+}
+// DELETE EMPLOYEE RECORD
+const deleteEmployeeRecord = () => {
+  console.log('Deleting an employee record...\n');
+
+  // const dynamicEmployees = () => {
+
+    // 1. query the database for all employees, get the latest set and form an array with employee names.
+    connection.query('SELECT * FROM employees', (err, results) => {
+      const employeesArray = [];
+      results.forEach((res) => {
+        employeesArray.push(`${res.first_name} ${res.last_name}`);
+      });
+      if (err) throw err;
+      employeesArray.push(`${new inquirer.Separator()}`);
+
+      // 2. start the inquirer function, use the array of employees as choices and get an answer for the employee name.
+      inquirer
+        .prompt([
+          {
+            name: 'employee_name',
+            type: 'list',
+            message: 'Name of the employee whose record is to be deleted?',
+            choices() {
+              const employeesArray = [];
+              results.forEach((res) => {
+                employeesArray.push(`${res.first_name} ${res.last_name}`)
+              });
+              return employeesArray;
+            },
+          },
+        ])
+        .then((answer) => {
+          // get the information of the chosen item
+          let chosenEmployee;
+          console.log(answer.employee_name);
+          results.forEach((employee) => {
+            if ((`${employee.first_name} ${employee.last_name}`) === (answer.employee_name)) {
+              chosenEmployee = employee;
+            }
+          });
+       
+          connection.query('DELETE FROM employees WHERE employees.id = ?',
+          chosenEmployee.id,            
+          (error) => {
+            if (error) throw err;
+            console.log('Record was deleted successfully!\n');
+            trackerMenu();
+          }
+          );
+        });
+    });
+};
+
+
+
+
+
+
+
+
+
+
+
 
 // validate(value) {
 //   if (isNaN(value) === false) {
