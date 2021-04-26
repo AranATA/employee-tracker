@@ -1,4 +1,4 @@
-const connection = require('./connect.js');
+const connection = require('./connect');
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const table = require('console.table');
@@ -63,7 +63,7 @@ const trackerMenu = () => {
       }
     });
 };
-trackerMenu();
+// trackerMenu();
 // VIEW ALL EMPLOYEES (complete)
 const viewAllEmployee = () => {
   console.log('Viewing all employees...\n');
@@ -517,3 +517,10 @@ console.log(departmentsArray);
       });  
   });
 };
+
+
+const employeeTracker = {
+  init: function() {trackerMenu()} 
+};
+
+module.exports = employeeTracker;
