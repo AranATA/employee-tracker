@@ -65,15 +65,15 @@ function trackerMenu() {
 };  
 trackerMenu();
 
-// VIEW ALL EMPLOYEES
+// VIEW ALL EMPLOYEES (complete)
 const viewAllEmployee = () => {
   console.log('Viewing all employees...\n');
-  connection.query('SELECT * FROM employees', (err, res) => {
+  connection.query('SELECT employees.id, first_name, last_name, title, dept_name, CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees JOIN employees manager_name ON manager_name.id = employees.manager_id LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON departments.id = roles.dept_id ORDER BY employees.id', (err, res) => {
     if (err) throw err;
     // Table all results of the SELECT statement
     console.table(res);
     // connection.end();
-    trackerMenu();
+    // trackerMenu();
   });
 };  
 // VIEW ALL EMPLOYEES BY DEPARTMENT
@@ -379,7 +379,7 @@ const deleteRole = () => {
         // get the information of the chosen item
         let chosenTitle;
         results.forEach((role) => {
-          if (role.title === (answer.title)) {
+          if (role.title === answer.title) {
             chosenTitle = role;
           }
         });

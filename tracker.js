@@ -1,24 +1,10 @@
+const connection = require('./connect.js');
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const table = require('console.table');
 
-// create the connection information for the sql database
-const connection = mysql.createConnection({
-  host: 'localhost',
-
-  // Your port; if not 3306
-  port: 3306,
-
-  // Your username
-  user: 'root',
-
-  // Your password
-  password: 'LQSyM(_Ghibli)',
-  database: 'org_chart',
-});
-
 // MAIN MENU What would you like to do?
-function trackerMenu() {
+const trackerMenu = () => {
   inquirer
     .prompt({
       name: 'menu',
@@ -77,15 +63,15 @@ function trackerMenu() {
       }
     });
 };
-// VIEW ALL EMPLOYEES
+trackerMenu();
+// VIEW ALL EMPLOYEES (complete)
 const viewAllEmployee = () => {
   console.log('Viewing all employees...\n');
-  connection.query('SELECT * FROM employees ORDER BY first_name', (err, res) => {
+  connection.query('SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.dept_name, roles.salary, CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees LEFT JOIN employees manager_name ON manager_name.id = employees.manager_id LEFT JOIN roles ON employees.role_id = roles.id LEFT JOIN departments ON departments.id = roles.dept_id ORDER BY employees.id', (err, res) => {
     if (err) throw err;
     // Table all results of the SELECT statement
     console.table(res);
     // connection.end();
-    trackerMenu();
   });
 };
 // VIEW ALL EMPLOYEES BY DEPARTMENT
@@ -335,7 +321,7 @@ const updateEmployeeRole = () => {
 const updateEmployeeManager = () => {
   console.log('Updating employee manager...\n');
   console.log('Use this table to answer the questions:\n');
-  viewToUpdateRef();
+  viewAllEmployee();
 
   const delay = () => {
     inquirer
@@ -477,7 +463,7 @@ const deleteDepartment = () => {
         // get the information of the chosen item
         let chosenDepartment;
         results.forEach((department) => {
-          if (department.dept_name === (answer.dept_name)) {
+          if (department.dept_name === answer.dept_name) {
             chosenDepartment = department;
           }
         });
@@ -531,20 +517,3 @@ console.log(departmentsArray);
       });  
   });
 };
-
-
-
-
-  // validate(value) {
-  //   if (isNaN(value) === false) {
-  //     return true;
-  //   }
-  //   return false;
-  // },
-
-  // connect to the mysql server and sql database
-  connection.connect((err) => {
-    if (err) throw err;
-    // run the start function after the connection is made to prompt the user
-    trackerMenu();
-  });
