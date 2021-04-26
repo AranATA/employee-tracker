@@ -122,7 +122,7 @@ const addNewEmployee = () => {
         departmentsArray.push(res.dept_name);
       });
       if (err) throw err;
-      
+
       // 2. start the inquirer function, use the array of departments as choices and get an answer for the department name.
       inquirer
         .prompt([
@@ -145,9 +145,9 @@ const addNewEmployee = () => {
             console.log(chosenDepartment);
             // chosenDepartmentId = chosenDepartment.id;
           });
-         
-            connection.query('SELECT roles.id, title, manager_id FROM employees RIGHT JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.dept_id = departments.id WHERE dept_id = ?',
-            chosenDepartment.id,            
+
+          connection.query('SELECT roles.id, title, manager_id FROM employees RIGHT JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.dept_id = departments.id WHERE dept_id = ?',
+            chosenDepartment.id,
             (err, res) => {
               if (err) throw err;
               console.log('Department was picked successfully!');
@@ -155,13 +155,13 @@ const addNewEmployee = () => {
               console.table(res);
               // trackerMenu();
             }
-            );
-          
+          );
+
         });
 
     });
-  
-  
+
+
   };
 
   dynamicDepartments();
@@ -172,7 +172,7 @@ const addNewEmployee = () => {
   //   });
   //   return departmentsArray;
   // },
-  
+
   // const delay = () => {
   //   inquirer
   //     .prompt([
@@ -241,7 +241,7 @@ const addNewRole = () => {
           name: 'salary',
           type: 'input',
           message: 'What is the new role salary?',
-        },        
+        },
       ])
       .then((answer) => {
         connection.query('INSERT INTO roles SET ?',
@@ -369,90 +369,182 @@ const updateEmployeeManager = () => {
         )
       });
   }
-  setTimeout(delay, 250);  
+  setTimeout(delay, 250);
 }
 // DELETE EMPLOYEE RECORD
 const deleteEmployeeRecord = () => {
   console.log('Deleting an employee record...\n');
-
-  // const dynamicEmployees = () => {
-
-    // 1. query the database for all employees, get the latest set and form an array with employee names.
-    connection.query('SELECT * FROM employees', (err, results) => {
-      const employeesArray = [];
-      results.forEach((res) => {
-        employeesArray.push(`${res.first_name} ${res.last_name}`);
-      });
-      if (err) throw err;
-      employeesArray.push(`${new inquirer.Separator()}`);
-
-      // 2. start the inquirer function, use the array of employees as choices and get an answer for the employee name.
-      inquirer
-        .prompt([
-          {
-            name: 'employee_name',
-            type: 'list',
-            message: 'Name of the employee whose record is to be deleted?',
-            choices() {
-              const employeesArray = [];
-              results.forEach((res) => {
-                employeesArray.push(`${res.first_name} ${res.last_name}`)
-              });
-              return employeesArray;
-            },
+  connection.query('SELECT * FROM employees', (err, results) => {
+    // Alternatively, this time inside the inquirer: query the database for all employees, get the latest set and form an array with employee names.
+    inquirer
+      .prompt([
+        {
+          name: 'employee_name',
+          type: 'list',
+          message: 'Name of the employee whose record is to be deleted?',
+          choices() {
+            const employeesArray = [];
+            results.forEach((res) => {
+              employeesArray.push(`${res.first_name} ${res.last_name}`)
+            });
+            employeesArray.push(`${new inquirer.Separator()}`);
+            return employeesArray;
           },
-        ])
-        .then((answer) => {
-          // get the information of the chosen item
-          let chosenEmployee;
-          console.log(answer.employee_name);
-          results.forEach((employee) => {
-            if ((`${employee.first_name} ${employee.last_name}`) === (answer.employee_name)) {
-              chosenEmployee = employee;
-            }
-          });
-       
-          connection.query('DELETE FROM employees WHERE employees.id = ?',
-          chosenEmployee.id,            
+        },
+      ])
+      .then((answer) => {
+        // get the information of the chosen item
+        let chosenEmployee;
+        console.log(answer.employee_name);
+        results.forEach((employee) => {
+          if ((`${employee.first_name} ${employee.last_name}`) === (answer.employee_name)) {
+            chosenEmployee = employee;
+          }
+        });
+
+        connection.query('DELETE FROM employees WHERE employees.id = ?',
+          chosenEmployee.id,
           (error) => {
             if (error) throw err;
             console.log('Record was deleted successfully!\n');
             trackerMenu();
           }
-          );
+        );
+      });
+  });
+};
+// DELETE ROLE
+const deleteRole = () => {
+  console.log('Deleting role...\n');
+  connection.query('SELECT * FROM roles', (err, results) => {
+    inquirer
+      .prompt([
+        {
+          name: 'title',
+          type: 'list',
+          message: 'Title of the role to be deleted?',
+          choices() {
+            const rolesArray = [];
+            results.forEach((res) => {
+              rolesArray.push(res.title);
+            });
+            rolesArray.push(`${new inquirer.Separator()}`);
+            return rolesArray;
+          },
+        },
+      ])
+      .then((answer) => {
+        // get the information of the chosen item
+        let chosenTitle;
+        results.forEach((role) => {
+          if (role.title === (answer.title)) {
+            chosenTitle = role;
+          }
         });
+
+        connection.query('DELETE FROM roles WHERE roles.id = ?',
+          chosenTitle.id,
+          (error) => {
+            if (error) throw err;
+            console.log('Role was deleted successfully!\n');
+            trackerMenu();
+          }
+        );
+      });
+  });
+}
+// DELETE DEPARTMENT
+const deleteDepartment = () => {
+  console.log('Deleting department...\n');
+  connection.query('SELECT * FROM departments', (err, results) => {
+    inquirer
+      .prompt([
+        {
+          name: 'dept_name',
+          type: 'list',
+          message: 'Name of the department to be deleted?',
+          choices() {
+            const departmentsArray = [];
+            results.forEach((res) => {
+              departmentsArray.push(res.dept_name);
+            });
+            departmentsArray.push(`${new inquirer.Separator()}`);
+            return departmentsArray;
+          },
+        },
+      ])
+      .then((answer) => {
+        // get the information of the chosen item
+        let chosenDepartment;
+        results.forEach((department) => {
+          if (department.dept_name === (answer.dept_name)) {
+            chosenDepartment = department;
+          }
+        });
+
+        connection.query('DELETE FROM departments WHERE departments.id = ?',
+          chosenDepartment.id,
+          (error) => {
+            if (error) throw err;
+            console.log('Department was deleted successfully!\n');
+            trackerMenu();
+          }
+        );
+      });
+  });
+}
+// VIEW BUDGET OF A DEPARTMENT
+const viewBudgetDepartment = () => {
+  console.log('Viewing the department budget...\n');
+  connection.query('SELECT * FROM departments', (err, results) => {
+    const departmentsArray = [];
+    results.forEach((res) => {
+      departmentsArray.push(res.dept_name);
     });
+    if (err) throw err;
+console.log(departmentsArray);
+    inquirer
+      .prompt([
+        {
+          name: 'dept_name',
+          type: 'list',
+          message: 'Which department budget is to be viewed?',
+          choices: departmentsArray,
+        }
+      ])
+      .then((answer) => {
+        let chosenDepartment;
+        results.forEach((department) => {
+          if (department.dept_name === answer.dept_name) {
+            chosenDepartment = department;
+          }
+        });
+      
+        connection.query('SELECT CONCAT(first_name, " ", last_name) AS employee_name, salary FROM employees INNER JOIN roles ON employees.role_id = roles.id INNER JOIN departments ON departments.id = roles.dept_id WHERE dept_id = ? UNION ALL SELECT "Total:" employee_name, sum(salary) FROM employees INNER JOIN roles ON employees.role_id = roles.id INNER JOIN departments ON departments.id = roles.dept_id WHERE dept_id = ?',
+        [chosenDepartment.id, chosenDepartment.id],
+        (err, res) => {
+          if (err) throw err;
+          console.log('Department budget was calculated successfully!\n');
+          console.table(res);
+          trackerMenu();
+        });
+      });  
+  });
 };
 
 
 
 
+  // validate(value) {
+  //   if (isNaN(value) === false) {
+  //     return true;
+  //   }
+  //   return false;
+  // },
 
-
-
-
-
-
-
-
-// validate(value) {
-//   if (isNaN(value) === false) {
-//     return true;
-//   }
-//   return false;
-// },
-// const start = () => {
-//   connection.query('SELECT * FROM roles', (err, res) => {
-//     if (err) throw err;
-//     console.log(`connected as id ${connection.threadId}`);
-//     console.table(res);
-//     connection.end();
-//   });
-// };
-
-// connect to the mysql server and sql database
-connection.connect((err) => {
-  if (err) throw err;
-  // run the start function after the connection is made to prompt the user
-  trackerMenu();
-});
+  // connect to the mysql server and sql database
+  connection.connect((err) => {
+    if (err) throw err;
+    // run the start function after the connection is made to prompt the user
+    trackerMenu();
+  });

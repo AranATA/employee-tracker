@@ -107,6 +107,7 @@ const viewAllEmployeeByManager = () => {
 };
 // ADD NEW EMPLOYEE WIP
 
+
 // ADD NEW ROLE
 const addNewRole = () => {
   console.log('Adding a new role...\n');
@@ -354,7 +355,124 @@ const deleteEmployeeRecord = () => {
         });
     });
 };
+// DELETE ROLE
+const deleteRole = () => {
+  console.log('Deleting role...\n');
+  connection.query('SELECT * FROM roles', (err, results) => {
+    inquirer
+      .prompt([
+        {
+          name: 'title',
+          type: 'list',
+          message: 'Title of the role to be deleted?',
+          choices() {
+            const rolesArray = [];
+            results.forEach((res) => {
+              rolesArray.push(res.title);
+            });
+            rolesArray.push(`${new inquirer.Separator()}`);
+            return rolesArray;
+          },
+        },
+      ])
+      .then((answer) => {
+        // get the information of the chosen item
+        let chosenTitle;
+        results.forEach((role) => {
+          if (role.title === (answer.title)) {
+            chosenTitle = role;
+          }
+        });
 
+        connection.query('DELETE FROM roles WHERE roles.id = ?',
+          chosenTitle.id,
+          (error) => {
+            if (error) throw err;
+            console.log('Role was deleted successfully!\n');
+            trackerMenu();
+          }
+        );
+      });
+  });
+}
+// DELETE DEPARTMENT
+const deleteDepartment = () => {
+  console.log('Deleting department...\n');
+  connection.query('SELECT * FROM departments', (err, results) => {
+    inquirer
+      .prompt([
+        {
+          name: 'dept_name',
+          type: 'list',
+          message: 'Name of the department to be deleted?',
+          choices() {
+            const departmentsArray = [];
+            results.forEach((res) => {
+              departmentsArray.push(res.dept_name);
+            });
+            departmentsArray.push(`${new inquirer.Separator()}`);
+            return departmentsArray;
+          },
+        },
+      ])
+      .then((answer) => {
+        // get the information of the chosen item
+        let chosenDepartment;
+        results.forEach((department) => {
+          if (department.dept_name === (answer.dept_name)) {
+            chosenDepartment = department;
+          }
+        });
+
+        connection.query('DELETE FROM departments WHERE departments.id = ?',
+          chosenDepartment.id,
+          (error) => {
+            if (error) throw err;
+            console.log('Department was deleted successfully!\n');
+            trackerMenu();
+          }
+        );
+      });
+  });
+}
+// VIEW BUDGET OF A DEPARTMENT
+const viewBudgetDepartment = () => {
+  console.log('Viewing the department budget...\n');
+  connection.query('SELECT * FROM departments', (err, results) => {
+    const departmentsArray = [];
+    results.forEach((res) => {
+      departmentsArray.push(res.dept_name);
+    });
+    if (err) throw err;
+console.log(departmentsArray);
+    inquirer
+      .prompt([
+        {
+          name: 'dept_name',
+          type: 'list',
+          message: 'Which department budget is to be viewed?',
+          choices: departmentsArray,
+        }
+      ])
+      .then((answer) => {
+        let chosenDepartment;
+        results.forEach((department) => {
+          if (department.dept_name === answer.dept_name) {
+            chosenDepartment = department;
+          }
+        });
+      
+        connection.query('SELECT CONCAT(first_name, " ", last_name) AS employee_name, salary FROM employees INNER JOIN roles ON employees.role_id = roles.id INNER JOIN departments ON departments.id = roles.dept_id WHERE dept_id = ? UNION ALL SELECT "Total:" employee_name, sum(salary) FROM employees INNER JOIN roles ON employees.role_id = roles.id INNER JOIN departments ON departments.id = roles.dept_id WHERE dept_id = ?',
+        [chosenDepartment.id, chosenDepartment.id],
+        (err, res) => {
+          if (err) throw err;
+          console.log('Department budget was calculated successfully!\n');
+          console.table(res);
+          trackerMenu();
+        });
+      });  
+  });
+};
 
 
 // Extra departments search 
