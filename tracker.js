@@ -2,14 +2,18 @@ const connection = require('./connect');
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const table = require('console.table');
-
+// const Fset = require('./Fset')
+// const newFset = new Fset;
+          
 // MAIN MENU What would you like to do?
 const trackerMenu = () => {
-  inquirer
+  
+  const delay = () => {
+    inquirer
     .prompt({
       name: 'menu',
       type: 'rawlist',
-      message: 'What would you like to do with the tracker app?',
+      message: 'What would you like to do with the tracker app?\n',
       choices: ['VIEW all employees', 'VIEW all employees by department', 'VIEW all employees by manager', 'ADD new employee', 'ADD new role', 'ADD new department', 'UPDATE employee role', 'UPDATE employee manager', 'DELETE employee record', 'DELETE role', 'DELETE department', 'VIEW the budget of a department', 'EXIT APP', new inquirer.Separator()],
       prefix: '-',
 
@@ -19,39 +23,51 @@ const trackerMenu = () => {
       switch (answer.menu) {
         case 'VIEW all employees':
           viewAllEmployee();
+          
           break;
         case 'VIEW all employees by department':
           viewAllEmployeeByDepartment();
+          
           break;
         case 'VIEW all employees by manager':
           viewAllEmployeeByManager();
+          
           break;
         case 'ADD new employee':
           addNewEmployee();
+          
           break;
         case 'ADD new role':
           addNewRole();
+          
           break;
         case 'ADD new department':
           addNewDepartment();
+          
           break;
         case 'UPDATE employee role':
           updateEmployeeRole();
+          
           break;
         case 'UPDATE employee manager':
           updateEmployeeManager();
+          
           break;
         case 'DELETE employee record':
           deleteEmployeeRecord();
+          
           break;
         case 'DELETE role':
           deleteRole();
+          
           break;
         case 'DELETE department':
           deleteDepartment();
+          
           break;
         case 'VIEW the budget of a department':
           viewBudgetDepartment();
+          
           break;
         case 'EXIT APP':
           console.log('Exiting the app...\n');
@@ -61,9 +77,12 @@ const trackerMenu = () => {
           console.log(`Invalid action: ${answer.menu}`);
           break;
       }
-    });
+    })
+  }
+  setTimeout(delay, 250);
+
 };
-// trackerMenu();
+
 // VIEW ALL EMPLOYEES (complete)
 const viewAllEmployee = () => {
   console.log('Viewing all employees...\n');
@@ -71,10 +90,11 @@ const viewAllEmployee = () => {
     if (err) throw err;
     // Table all results of the SELECT statement
     console.table(res);
+    trackerMenu();
     // connection.end();
   });
 };
-// VIEW ALL EMPLOYEES BY DEPARTMENT
+// VIEW ALL EMPLOYEES BY DEPARTMENT (complete)
 const viewAllEmployeeByDepartment = () => {
   console.log('Viewing all employees by department...\n');
   connection.query('SELECT dept_name, CONCAT(first_name, " ", last_name) AS employee_name FROM employees JOIN roles ON employees.role_id = roles.id JOIN departments ON departments.id =roles.dept_id ORDER BY dept_name', (err, res) => {
@@ -83,13 +103,12 @@ const viewAllEmployeeByDepartment = () => {
     trackerMenu();
   });
 };
-// VIEW ALL EMPLOYEES BY MANAGER
+// VIEW ALL EMPLOYEES BY MANAGER (complete)
 // NEW VERSION (JOIN)
 const viewAllEmployeeByManager = () => {
   console.log('Viewing all employees by manager...\n');
-  connection.query('SELECT employees.manager_id, CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name, CONCAT(employees.first_name, " ", employees.last_name) AS employee_name FROM employees JOIN employees manager_name ON manager_name.id = employees.manager_id', (err, res) => {
+  connection.query('SELECT CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name, CONCAT(employees.first_name, " ", employees.last_name) AS employee_name FROM employees LEFT JOIN employees manager_name ON manager_name.id = employees.manager_id', (err, res) => {
     if (err) throw err;
-    // Table all results of the SELECT statement
     console.table(res);
     trackerMenu();
   });
@@ -98,110 +117,110 @@ const viewAllEmployeeByManager = () => {
 // *********WIP************
 const addNewEmployee = () => {
   console.log('Adding a new employee...\n');
-
-  const dynamicDepartments = () => {
-
-    // 1. query the database for all departments, get the latest set and form an array with department names.
-    connection.query('SELECT * FROM departments', (err, results) => {
-      const departmentsArray = [];
+  const rolesArray = [];
+  const managersArray = [];
+  let chosenRole;
+  let chosenRoleId;
+  let chosenManager;
+  let chosenManagerId;
+  let firstName;
+  let lastName;
+  
+  const a = () => {
+    connection.query('SELECT * FROM roles', (err, results) => {
       results.forEach((res) => {
-        departmentsArray.push(res.dept_name);
+        rolesArray.push(res.title);
       });
       if (err) throw err;
-
-      // 2. start the inquirer function, use the array of departments as choices and get an answer for the department name.
+    
       inquirer
         .prompt([
           {
-            name: 'dept_name',
+            name: 'first_name',
+            type: 'input',
+            message: 'First name of the new employee?'
+          },
+          {
+            name: 'last_name',
+            type: 'input',
+            message: 'Last name of the new employee?'
+          },
+          {
+            name: 'title',
             type: 'list',
-            message: 'Department name of the new employee?',
-            choices: departmentsArray,
+            message: 'Title of the new employee?',
+            choices: rolesArray,
           },
         ])
         .then((answer) => {
-          let chosenDepartment;
-          results.forEach((department) => {
-            if (department.dept_name === answer.dept_name) {
-              chosenDepartment = department;
-            }
-            else {
-              console.error('No results');
-            }
-            console.log(chosenDepartment);
-            // chosenDepartmentId = chosenDepartment.id;
+          // when finished prompting, insert a new item into the db with that info
+          // let chosenRole;
+          results.forEach((role) => {
+            if (role.title === answer.title) {
+              chosenRole = role;
+              chosenRoleId = role.id;
+            }          
           });
-
-          connection.query('SELECT roles.id, title, manager_id FROM employees RIGHT JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.dept_id = departments.id WHERE dept_id = ?',
-            chosenDepartment.id,
-            (err, res) => {
-              if (err) throw err;
-              console.log('Department was picked successfully!');
-              console.log('Use this table to answer the questions:\n');
-              console.table(res);
-              // trackerMenu();
-            }
-          );
-
-        });
-
+          firstName = answer.first_name;
+          lastName = answer.last_name;
+          b();
+        });  
     });
+  }
 
+  const b = () => {
+    connection.query('SELECT DISTINCT CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees JOIN employees manager_name ON manager_name.id = employees.manager_id', (err, results) => {
+      results.forEach((res) => {
+        managersArray.push(res.manager_name);
+      });
+      managersArray.push(`${new inquirer.Separator()}`);
+      if (err) throw err;
+      console.log(managersArray);
 
-  };
+      inquirer
+        .prompt([
+          {
+            name: 'manager',
+            type: 'list',
+            message: 'Name of the new employee manager?',
+            choices: managersArray,
+          }
+        ])
+        // console.log("hello hello")
+        
+        .then((answer) => {
+          results.forEach((man) => {
+            if ((`${man.first_name} ${man.last_name}`) === answer.manager) {
+              chosenManager = man;
+              chosenManagerId = man.manager_id;
+            }
+          });
+          console.log(chosenManager);
+          console.log(man.first_name);
+          // c();
+        });
+    });
+  }
 
-  dynamicDepartments();
-  // choices() {
-  //   const departmentsArray = [];
-  //   results.forEach(({ dept_name }) => {
-  //     departmentsArray.push(dept_name);
-  //   });
-  //   return departmentsArray;
-  // },
-
-  // const delay = () => {
-  //   inquirer
-  //     .prompt([
-  //       {
-  //         name: 'role_id',
-  //         type: 'input',
-  //         message: 'Title id of the new employee?',
-  //       },
-  //       {
-  //         name: 'manager_id',
-  //         type: 'input',
-  //         message: 'Manager id of the new employee?',
-  //       },
-  //       {
-  //         name: 'first_name',
-  //         type: 'input',
-  //         message: 'First name of the new employee?',
-  //       },
-  //       {
-  //         name: 'last_name',
-  //         type: 'input',
-  //         message: 'Last name of the new employee?',
-  //       },
-  //     ])
-  //     .then((answer) => {
-  //       // when finished prompting, insert a new item into the db with that info
-  //       connection.query('INSERT INTO employees SET ?',
-  //         {
-  //           first_name: answer.first_name,
-  //           last_name: answer.last_name,
-  //           role_id: answer.role_id,
-  //           manager_id: answer.manager_id,
-  //         },
-  //         (err) => {
-  //           if (err) throw err;
-  //           console.log('New employee was added successfully!');
-  //           trackerMenu();
-  //         }
-  //       );
-  //     });
-  // };
-  // setTimeout(delay, 250);
+ 
+  const c = () => {
+    connection.query('INSERT INTO employees SET ?',
+    {
+      first_name: firstName,
+      last_name: lastName,
+      role_id: chosenRoleId,
+      manager_id: chosenManagerId
+    },
+    (err) => {
+    if (err) throw err;
+      console.log('New employee was added successfully!');
+      trackerMenu();
+    }
+  );
 };
+a();
+};
+
 // ADD NEW ROLE
 const addNewRole = () => {
   console.log('Adding a new role...\n');
@@ -245,6 +264,7 @@ const addNewRole = () => {
       });
   };
   setTimeout(delayedPrompt, 250);
+  trackerMenu()
 };
 // ADD NEW DEPARTMENT
 const addNewDepartment = () => {
@@ -316,6 +336,7 @@ const updateEmployeeRole = () => {
       });
   }
   setTimeout(delay, 250);
+  trackerMenu()
 };
 // UPDATE EMPLOYEE MANAGER
 const updateEmployeeManager = () => {
@@ -356,7 +377,8 @@ const updateEmployeeManager = () => {
       });
   }
   setTimeout(delay, 250);
-}
+  trackerMenu()
+};
 // DELETE EMPLOYEE RECORD
 const deleteEmployeeRecord = () => {
   console.log('Deleting an employee record...\n');
@@ -398,6 +420,7 @@ const deleteEmployeeRecord = () => {
         );
       });
   });
+  trackerMenu()
 };
 // DELETE ROLE
 const deleteRole = () => {
@@ -438,7 +461,8 @@ const deleteRole = () => {
         );
       });
   });
-}
+  trackerMenu();
+};
 // DELETE DEPARTMENT
 const deleteDepartment = () => {
   console.log('Deleting department...\n');
@@ -478,7 +502,8 @@ const deleteDepartment = () => {
         );
       });
   });
-}
+  trackerMenu();
+};
 // VIEW BUDGET OF A DEPARTMENT
 const viewBudgetDepartment = () => {
   console.log('Viewing the department budget...\n');
@@ -516,11 +541,8 @@ console.log(departmentsArray);
         });
       });  
   });
+  trackerMenu();
 };
 
-
-const employeeTracker = {
-  init: function() {trackerMenu()} 
-};
-
-module.exports = employeeTracker;
+module.exports = trackerMenu;
+// trackerMenu();
