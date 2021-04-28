@@ -3,8 +3,6 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 const table = require('console.table');
-// const Fset = require('./Fset')
-// const newFset = new Fset;
           
 // MAIN MENU What would you like to do?
 const trackerMenu = () => {
@@ -466,7 +464,6 @@ const updateEmployeeManager = () => {
   dataSet();
 };  
 
-
 // DELETE EMPLOYEE RECORD
 const deleteEmployeeRecord = () => {
   console.log('Deleting an employee record...\n');
@@ -629,4 +626,3 @@ console.log(departmentsArray);
 };
 
 module.exports = trackerMenu;
-// trackerMenu();
