@@ -107,7 +107,7 @@ const viewAllEmployeeByDepartment = () => {
 // NEW VERSION (JOIN)
 const viewAllEmployeeByManager = () => {
   console.log('Viewing all employees by manager...\n');
-  connection.query('SELECT CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name, CONCAT(employees.first_name, " ", employees.last_name) AS employee_name FROM employees LEFT JOIN employees manager_name ON manager_name.id = employees.manager_id', (err, res) => {
+  connection.query('SELECT CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name, CONCAT(employees.first_name, " ", employees.last_name) AS employee_name FROM employees LEFT JOIN employees manager_name ON manager_name.id = employees.manager_id ORDER BY manager_name', (err, res) => {
     if (err) throw err;
     console.table(res);
     trackerMenu();
@@ -305,48 +305,97 @@ const addNewDepartment = () => {
     });
 };
 
-// UPDATE EMPLOYEE ROLE
+// UPDATE EMPLOYEE ROLE (complete)
 const updateEmployeeRole = () => {
   console.log('Updating employee role...\n');
-  console.log('Use this table to answer the questions:\n');
-  viewToUpdateRef();
+  const employeesArray = [];
+  const rolesArray = [];
+  const departmentsArray = [];
+  let chosenEmployee;
+  let chosenEmployeeId;
+  let chosenRole;
+  let chosenRoleId;
+  let chosenDepartment;
+  let chosenDepartmentId;
+  let roleSalary;
 
-  const delay = () => {
-    inquirer
-      .prompt([
-        {
-          name: 'e_id',
-          type: 'input',
-          message: 'Id number of the employee whose role to be updated?',
-        },
-        {
-          name: 'role_id',
-          type: 'input',
-          message: 'Id number of the new role?',
-        },
-      ])
-      .then((answer) => {
-        connection.query('UPDATE employees SET ? WHERE ?',
-          [
-            {
-              role_id: answer.role_id,
-            },
-            {
-              id: answer.e_id,
-            },
-          ],
-          (err, res) => {
-            if (err) throw err;
-            console.log(`${res.affectedRows} employee role updated successfully!\n`);
-            trackerMenu();
-          }
-        )
+  const dataSet = () => {
+    connection.query('SELECT DISTINCT IFNULL(employees.id, "0") AS id, IFNULL(CONCAT(first_name, " ", last_name), "empty") AS employee_name, IFNULL(roles.id, "00") AS roles_id, IFNULL(roles.title, "empty") AS title, departments.id AS depts_id, dept_name FROM roles LEFT JOIN employees ON employees.role_id = roles.id RIGHT JOIN departments ON roles.dept_id = departments.id ORDER BY employees.id;', (err, results) => {
+      results.forEach((res) => {
+        employeesArray.push(res.employee_name);
+        rolesArray.push(res.title);
+        departmentsArray.push(res.dept_name);
       });
-  }
-  setTimeout(delay, 250);
-  trackerMenu()
-};
-// UPDATE EMPLOYEE MANAGER
+      if (err) throw err;
+      console.log('Use this table to review the current roles:\n');
+      console.table(results);
+      inquirer
+        .prompt([
+          {
+            name: 'employeeNames',
+            type: 'list',
+            message: 'Name of the employee whose role to be updated?',
+            choices: employeesArray,
+          },
+          {
+            name: 'title',
+            type: 'list',
+            message: 'Title of the updated role?',
+            choices: rolesArray
+          },
+          {
+            name: 'salary',
+            type: 'input',
+            message: 'Salary of the updated role?'
+          },
+          {
+            name: 'department',
+            type: 'list',
+            message: 'Department of the updated role?',
+            choices: departmentsArray
+          },
+        ])
+        .then((answer) => {
+          results.forEach((field) => {
+            if (field.employee_name === answer.employeeNames) {
+              chosenEmployee = field;
+              chosenEmployeeId = field.id;
+            };
+          }); 
+          results.forEach((field) => {
+            if (field.title === answer.title) {
+              chosenRole = field;
+              chosenRoleId = field.roles_id;
+            };
+          });  
+          results.forEach((field) => {
+            if (field.dept_name === answer.department) {
+              chosenDepartment = field;
+              chosenDepartmentId = field.depts_id;
+            };                
+          });
+          roleSalary = answer.salary;
+          console.log(chosenDepartment);
+          updateData();
+        });  
+    });
+  };
+  const updateData = () => {
+    connection.query(`UPDATE employees, roles SET employees.role_id = ${chosenRoleId}, roles.salary = ${roleSalary}, roles.dept_id = ${chosenDepartmentId} WHERE employees.id = ${chosenEmployeeId} AND roles.id = ${chosenRoleId};`,
+      
+      (err) => {
+      if (err) throw err;
+        console.log(`${chosenEmployee.first_name} ${chosenEmployee.last_name} was updated to a role of ${chosenRole.title} successfully!`);
+        trackerMenu();
+      }
+    );
+  };
+
+  dataSet();
+};  
+
+
+// UPDATE EMPLOYEE MANAGER 
 const updateEmployeeManager = () => {
   console.log('Updating employee manager...\n');
   console.log('Use this table to answer the questions:\n');
