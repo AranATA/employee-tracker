@@ -15,7 +15,7 @@ const connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect((err) => {
   if (err) throw err;
-  console.log(chalk.green(`Successfully connected to org_chart as id: ${connection.threadId}`));
+  console.log(chalk.green(`Successfully connected to org_chart as id: ${connection.threadId}\n`));
 });
 
 module.exports = connection;

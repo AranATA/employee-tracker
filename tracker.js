@@ -132,7 +132,7 @@ const addNewEmployee = () => {
         rolesArray.push(res.title);
       });
       if (err) throw err;
-    
+      console.log(rolesArray);
       inquirer
         .prompt([
           {
@@ -169,14 +169,13 @@ const addNewEmployee = () => {
   }
 
   const b = () => {
-    connection.query('SELECT DISTINCT CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees JOIN employees manager_name ON manager_name.id = employees.manager_id', (err, results) => {
+    connection.query('SELECT DISTINCT manager_name.id, CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees INNER JOIN employees manager_name ON manager_name.id = employees.manager_id', (err, results) => {
       results.forEach((res) => {
         managersArray.push(res.manager_name);
       });
-      managersArray.push(`${new inquirer.Separator()}`);
+      // managersArray.push(`${new inquirer.Separator()}`);
       if (err) throw err;
-      console.log(managersArray);
-
+      
       inquirer
         .prompt([
           {
@@ -186,18 +185,15 @@ const addNewEmployee = () => {
             choices: managersArray,
           }
         ])
-        // console.log("hello hello")
-        
+               
         .then((answer) => {
           results.forEach((man) => {
-            if ((`${man.first_name} ${man.last_name}`) === answer.manager) {
+            if (man.manager_name === answer.manager) {
               chosenManager = man;
-              chosenManagerId = man.manager_id;
+              chosenManagerId = man.id;
             }
           });
-          console.log(chosenManager);
-          console.log(man.first_name);
-          // c();
+          c();
         });
     });
   }
@@ -213,7 +209,7 @@ const addNewEmployee = () => {
     },
     (err) => {
     if (err) throw err;
-      console.log('New employee was added successfully!');
+      console.log(`${firstName} ${lastName} was added successfully!`);
       trackerMenu();
     }
   );
