@@ -113,8 +113,7 @@ const viewAllEmployeeByManager = () => {
     trackerMenu();
   });
 };
-// ADD NEW EMPLOYEE
-// *********WIP************
+// ADD NEW EMPLOYEE (complete)
 const addNewEmployee = () => {
   console.log('Adding a new employee...\n');
   const rolesArray = [];
@@ -126,13 +125,13 @@ const addNewEmployee = () => {
   let firstName;
   let lastName;
   
-  const a = () => {
+  const dataSetA = () => {
     connection.query('SELECT * FROM roles', (err, results) => {
       results.forEach((res) => {
         rolesArray.push(res.title);
       });
       if (err) throw err;
-      console.log(rolesArray);
+      rolesArray.push(`${new inquirer.Separator()}`);
       inquirer
         .prompt([
           {
@@ -153,8 +152,6 @@ const addNewEmployee = () => {
           },
         ])
         .then((answer) => {
-          // when finished prompting, insert a new item into the db with that info
-          // let chosenRole;
           results.forEach((role) => {
             if (role.title === answer.title) {
               chosenRole = role;
@@ -163,17 +160,16 @@ const addNewEmployee = () => {
           });
           firstName = answer.first_name;
           lastName = answer.last_name;
-          b();
+          dataSetB();
         });  
     });
   }
 
-  const b = () => {
+  const dataSetB = () => {
     connection.query('SELECT DISTINCT manager_name.id, CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees INNER JOIN employees manager_name ON manager_name.id = employees.manager_id', (err, results) => {
       results.forEach((res) => {
         managersArray.push(res.manager_name);
       });
-      // managersArray.push(`${new inquirer.Separator()}`);
       if (err) throw err;
       
       inquirer
@@ -193,13 +189,13 @@ const addNewEmployee = () => {
               chosenManagerId = man.id;
             }
           });
-          c();
+          insertData();
         });
     });
   }
 
  
-  const c = () => {
+  const insertData = () => {
     connection.query('INSERT INTO employees SET ?',
     {
       first_name: firstName,
@@ -214,55 +210,77 @@ const addNewEmployee = () => {
     }
   );
 };
-a();
+
+dataSetA();
 };
 
-// ADD NEW ROLE
+// ADD NEW ROLE (complete)
 const addNewRole = () => {
   console.log('Adding a new role...\n');
-  connection.query('SELECT * FROM departments ORDER BY departments.id', (err, res) => {
-    if (err) throw err;
-    console.log('Use this table to answer the questions:\n');
-    console.table(res);
-  });
-  const delayedPrompt = () => {
-    inquirer
-      .prompt([
-        {
-          name: 'dept_id',
-          type: 'input',
-          message: 'What department id number does the new role has?',
-        },
-        {
-          name: 'title',
-          type: 'input',
-          message: 'What is the new role title?',
-        },
-        {
-          name: 'salary',
-          type: 'input',
-          message: 'What is the new role salary?',
-        },
-      ])
-      .then((answer) => {
-        connection.query('INSERT INTO roles SET ?',
-          {
-            title: answer.title,
-            salary: answer.salary,
-            dept_id: answer.dept_id,
-          },
-          (err) => {
-            if (err) throw err;
-            console.log('New role was added successfully!');
-            trackerMenu();
-          }
-        )
+  const departmentsArray = [];
+  let chosenDepartment;
+  let chosenDepartmentId;
+  let roleTitle;
+  let roleSalary;
+  
+  const dataSet = () => {
+    connection.query('SELECT * FROM departments', (err, results) => {
+      results.forEach((res) => {
+        departmentsArray.push(res.dept_name);
       });
-  };
-  setTimeout(delayedPrompt, 250);
-  trackerMenu()
+      if (err) throw err;
+      
+      inquirer
+        .prompt([
+          {
+            name: 'title',
+            type: 'input',
+            message: 'Title of the new role?'
+          },
+          {
+            name: 'salary',
+            type: 'input',
+            message: 'Salary of the new role?'
+          },
+          {
+            name: 'department',
+            type: 'list',
+            message: 'Department of the new role?',
+            choices: departmentsArray,
+          },
+        ])
+        .then((answer) => {
+          results.forEach((dept) => {
+            if (dept.dept_name === answer.department) {
+              chosenDepartment = dept;
+              chosenDepartmentId = dept.id;
+            }          
+          });
+          roleTitle = answer.title;
+          roleSalary = answer.salary;
+          insertData();
+        });  
+    });
+  }
+  const insertData = () => {
+    connection.query('INSERT INTO roles SET ?',
+    {
+      title: roleTitle,
+      salary: roleSalary,
+      dept_id: chosenDepartmentId,
+    },
+    (err) => {
+    if (err) throw err;
+      console.log(`${roleTitle} was added successfully!`);
+      trackerMenu();
+    }
+  );
 };
-// ADD NEW DEPARTMENT
+
+  dataSet();
+};
+
+// ADD NEW DEPARTMENT (complete)
 const addNewDepartment = () => {
   console.log('Adding a new department...\n');
   inquirer
@@ -286,13 +304,7 @@ const addNewDepartment = () => {
       )
     });
 };
-// reference table function for UPDATE
-const viewToUpdateRef = () => {
-  connection.query('SELECT employees.id, CONCAT(employees.first_name, " ", employees.last_name) AS employee_name, CONCAT(roles.title, ", id:", roles.id) AS title_and_role_id, dept_name, CONCAT(manager_name.first_name, " ", manager_name.last_name) AS manager_name FROM employees LEFT JOIN employees manager_name ON manager_name.id = employees.manager_id RIGHT JOIN roles ON employees.role_id = roles.id RIGHT JOIN departments ON departments.id = roles.dept_id ORDER BY employees.id', (err, res) => {
-    if (err) throw err;
-    console.table(res);
-  });
-};
+
 // UPDATE EMPLOYEE ROLE
 const updateEmployeeRole = () => {
   console.log('Updating employee role...\n');
@@ -416,7 +428,6 @@ const deleteEmployeeRecord = () => {
         );
       });
   });
-  trackerMenu()
 };
 // DELETE ROLE
 const deleteRole = () => {
@@ -457,7 +468,6 @@ const deleteRole = () => {
         );
       });
   });
-  trackerMenu();
 };
 // DELETE DEPARTMENT
 const deleteDepartment = () => {
@@ -498,7 +508,6 @@ const deleteDepartment = () => {
         );
       });
   });
-  trackerMenu();
 };
 // VIEW BUDGET OF A DEPARTMENT
 const viewBudgetDepartment = () => {
@@ -537,7 +546,6 @@ console.log(departmentsArray);
         });
       });  
   });
-  trackerMenu();
 };
 
 module.exports = trackerMenu;
