@@ -67,22 +67,27 @@ Bonus points if you're able to:
 
 ***
 
-Full views of the home and notes pages <br>
-<br>
+Under the link below you will find a walkthrough video that demonstrates; how a user would invoke the application from the command line, how a user would enter responses to all of the prompts in the application.<br>
+If the video appears out of focus please hit the space bar twice.
 
-![alt text](public/assets/images/scrshot.png)
+[https://drive.google.com/file/d/1RJl4hiV1N2NAj54aiJzsfiLY-gF4zjpT/view](https://drive.google.com/file/d/1RJl4hiV1N2NAj54aiJzsfiLY-gF4zjpT/view)
 
-<br>
-<br>
 
-A short video that shows how the UI works.<br>
-<br>
+Several screenshots that show the different prompts and displayed data:<br>
+<br
 
-![note taker demo](public/assets/images/note-taker.gif)
+![alt text](/assets/images/scrshot01.png)
 
 <br>
+
+![alt text](/assets/images/scrshot02.png)
+
 <br>
 
+![alt text](/assets/images/scrshot03.png)
+
+<br>
+<br>
 ## some valuable references
 
 ***
